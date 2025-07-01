@@ -3,8 +3,8 @@ package router
 import (
 	"net/http"
 
-	"Kevinmajesta/OrderManagement-API/internal/http/handler"
-	"Kevinmajesta/OrderManagement-API/pkg/route"
+	"Kevinmajesta/OrderManagementAPI/internal/http/handler"
+	"Kevinmajesta/OrderManagementAPI/pkg/route"
 )
 
 const (
@@ -60,7 +60,7 @@ func PublicRoutes(userHandler handler.UserHandler,
 }
 
 func PrivateRoutes(userHandler handler.UserHandler,
-	adminHandler handler.AdminHandler,) []*route.Route {
+	adminHandler handler.AdminHandler, productHandler handler.ProductHandler) []*route.Route {
 	return []*route.Route{
 
 		{
@@ -94,12 +94,18 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: adminHandler.DeleteAdmin,
 			Roles:   onlyAdmin,
 		},
-
 		{
 			Method:  http.MethodGet,
 			Path:    "/users/:user_id",
 			Handler: userHandler.GetUserProfile,
 			Roles:   allRoles,
 		},
+				{
+			Method:  http.MethodPost,
+			Path:    "/products",
+			Handler: productHandler.CreateProduct,
+			Roles:   onlyAdmin,
+		},
+
 	}
 }

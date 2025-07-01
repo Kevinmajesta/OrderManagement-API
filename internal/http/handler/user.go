@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"Kevinmajesta/OrderManagement-API/internal/entity"
-	"Kevinmajesta/OrderManagement-API/internal/http/binder"
-	"Kevinmajesta/OrderManagement-API/internal/service"
-	"Kevinmajesta/OrderManagement-API/pkg/response"
+	"Kevinmajesta/OrderManagementAPI/internal/entity"
+	"Kevinmajesta/OrderManagementAPI/internal/http/binder"
+	"Kevinmajesta/OrderManagementAPI/internal/service"
+	"Kevinmajesta/OrderManagementAPI/pkg/response"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )

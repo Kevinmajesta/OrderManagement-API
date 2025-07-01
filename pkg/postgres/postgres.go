@@ -3,7 +3,7 @@ package postgres
 import (
 	"fmt"
 
-	"Kevinmajesta/OrderManagement-API/configs"
+	"Kevinmajesta/OrderManagementAPI/configs"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"Kevinmajesta/OrderManagement-API/configs" 
-	"Kevinmajesta/OrderManagement-API/internal/builder"
-	"Kevinmajesta/OrderManagement-API/pkg/cache"
-	"Kevinmajesta/OrderManagement-API/pkg/encrypt"
-	"Kevinmajesta/OrderManagement-API/pkg/postgres"
-	"Kevinmajesta/OrderManagement-API/pkg/server"
-	"Kevinmajesta/OrderManagement-API/pkg/token"
+	"Kevinmajesta/OrderManagementAPI/configs" 
+	"Kevinmajesta/OrderManagementAPI/internal/builder"
+	"Kevinmajesta/OrderManagementAPI/pkg/cache"
+	"Kevinmajesta/OrderManagementAPI/pkg/encrypt"
+	"Kevinmajesta/OrderManagementAPI/pkg/postgres"
+	"Kevinmajesta/OrderManagementAPI/pkg/server"
+	"Kevinmajesta/OrderManagementAPI/pkg/token"
 	"log" 
 )
 

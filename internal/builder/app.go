@@ -1,16 +1,16 @@
 package builder
 
 import (
-	"Kevinmajesta/OrderManagement-API/configs"
-	"Kevinmajesta/OrderManagement-API/internal/http/handler"
-	"Kevinmajesta/OrderManagement-API/internal/http/router"
-	"Kevinmajesta/OrderManagement-API/internal/repository"
-	"Kevinmajesta/OrderManagement-API/internal/service"
-	"Kevinmajesta/OrderManagement-API/pkg/cache"
-	"Kevinmajesta/OrderManagement-API/pkg/email"
-	"Kevinmajesta/OrderManagement-API/pkg/encrypt"
-	"Kevinmajesta/OrderManagement-API/pkg/route"
-	"Kevinmajesta/OrderManagement-API/pkg/token"
+	"Kevinmajesta/OrderManagementAPI/configs"
+	"Kevinmajesta/OrderManagementAPI/internal/http/handler"
+	"Kevinmajesta/OrderManagementAPI/internal/http/router"
+	"Kevinmajesta/OrderManagementAPI/internal/repository"
+	"Kevinmajesta/OrderManagementAPI/internal/service"
+	"Kevinmajesta/OrderManagementAPI/pkg/cache"
+	"Kevinmajesta/OrderManagementAPI/pkg/email"
+	"Kevinmajesta/OrderManagementAPI/pkg/encrypt"
+	"Kevinmajesta/OrderManagementAPI/pkg/route"
+	"Kevinmajesta/OrderManagementAPI/pkg/token"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -42,5 +42,9 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 	adminService := service.NewAdminService(adminRepository, nil, encryptTool, nil)
 	adminHandler := handler.NewAdminHandler(adminService)
 
-	return router.PrivateRoutes(userHandler, adminHandler)
+	productRepository := repository.NewProductRepository(db, cacheable)
+	productService := service.NewProductService(productRepository)
+	productHandler := handler.NewProductHandler(productService)
+
+	return router.PrivateRoutes(userHandler, adminHandler, productHandler)
 }

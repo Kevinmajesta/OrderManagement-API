@@ -1,4 +1,4 @@
-module Kevinmajesta/OrderManagement-API
+module Kevinmajesta/OrderManagementAPI
 
 go 1.23.3
 

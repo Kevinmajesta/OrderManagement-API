@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"Kevinmajesta/OrderManagement-API/internal/entity"
-	"Kevinmajesta/OrderManagement-API/pkg/cache"
+	"Kevinmajesta/OrderManagementAPI/internal/entity"
+	"Kevinmajesta/OrderManagementAPI/pkg/cache"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

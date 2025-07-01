@@ -4,11 +4,11 @@ import (
 	"errors"
 	"time"
 
-	"Kevinmajesta/OrderManagement-API/internal/entity"
-	"Kevinmajesta/OrderManagement-API/internal/repository"
-	"Kevinmajesta/OrderManagement-API/pkg/email"
-	"Kevinmajesta/OrderManagement-API/pkg/encrypt"
-	"Kevinmajesta/OrderManagement-API/pkg/token"
+	"Kevinmajesta/OrderManagementAPI/internal/entity"
+	"Kevinmajesta/OrderManagementAPI/internal/repository"
+	"Kevinmajesta/OrderManagementAPI/pkg/email"
+	"Kevinmajesta/OrderManagementAPI/pkg/encrypt"
+	"Kevinmajesta/OrderManagementAPI/pkg/token"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"

@@ -9,9 +9,9 @@ import (
 	"os/signal"
 	"time"
 
-	"Kevinmajesta/OrderManagement-API/pkg/response"
-	"Kevinmajesta/OrderManagement-API/pkg/route"
-	"Kevinmajesta/OrderManagement-API/pkg/token"
+	"Kevinmajesta/OrderManagementAPI/pkg/response"
+	"Kevinmajesta/OrderManagementAPI/pkg/route"
+	"Kevinmajesta/OrderManagementAPI/pkg/token"
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"

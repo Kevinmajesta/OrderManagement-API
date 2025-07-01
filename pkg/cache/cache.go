@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"Kevinmajesta/OrderManagement-API/configs"
+	"Kevinmajesta/OrderManagementAPI/configs"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -23,6 +23,7 @@ func InitCache(config *configs.RedisConfig) *redis.Client {
 type Cacheable interface {
 	Set(key string, value interface{}, expiration time.Duration) error
 	Get(key string) (string, error)
+	Delete(key string) error
 }
 
 type cacheable struct {
@@ -49,4 +50,12 @@ func (c *cacheable) Get(key string) (string, error) {
 		return "", nil
 	}
 	return val, err
+}
+
+func (c *cacheable) Delete(key string) error {
+	operation := c.rdb.Del(context.Background(), key)
+	if err := operation.Err(); err != nil {
+		return err
+	}
+	return nil
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv" // Import strconv untuk konversi port
 
-	"Kevinmajesta/OrderManagement-API/configs" // Perbaiki import path jika 'internal/entity' tidak lagi ada
+	"Kevinmajesta/OrderManagementAPI/configs" // Perbaiki import path jika 'internal/entity' tidak lagi ada
 	// Jika struct Config dipindahkan ke package 'configs', maka import path-nya harus disesuaikan.
 	// Jika 'entity.Config' masih ada, pastikan itu mengacu pada struct Config yang benar.
 
