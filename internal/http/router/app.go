@@ -100,12 +100,29 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: userHandler.GetUserProfile,
 			Roles:   allRoles,
 		},
-				{
+		{
 			Method:  http.MethodPost,
 			Path:    "/products",
 			Handler: productHandler.CreateProduct,
 			Roles:   onlyAdmin,
 		},
-
+		{
+			Method:  http.MethodPut,
+			Path:    "/products/:product_id",
+			Handler: productHandler.UpdateProduct,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodDelete,
+			Path:    "/products/:product_id",
+			Handler: productHandler.DeleteProduct,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/products",
+			Handler: productHandler.FindAllProduct,
+			Roles:   allRoles,
+		},
 	}
 }

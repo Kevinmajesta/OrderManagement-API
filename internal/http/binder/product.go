@@ -14,7 +14,7 @@ type ProductCreateRequest struct {
 }
 
 type ProductUpdateRequest struct {
-	ProductID   uuid.UUID             `param:"id" json:"id" validate:"required"`
+	ProductID   uuid.UUID             `param:"product_id" json:"product_id" validate:"required"`
 	Name        string                `form:"name" json:"name" validate:"required"`
 	Description string                `form:"description" json:"description"`
 	Photo       *multipart.FileHeader `form:"photo" json:"-"`
@@ -23,7 +23,7 @@ type ProductUpdateRequest struct {
 }
 
 type ProductDeleteRequest struct {
-	ProductID uuid.UUID `param:"id" validate:"required"`
+	ProductID uuid.UUID `param:"product_id" validate:"required"`
 }
 
 type ProductUpdateStockRequest struct {
