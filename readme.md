@@ -107,6 +107,6 @@ Seeder akan otomatis dijalankan saat server aktif
 ```bash
 = Gunakan tool seperti Postman atau Insomnia untuk test API.
 = Email & upload berjalan secara asynchronous menggunakan goroutine
-
-- Link Postman : [Link Postman](https://www.postman.com/lunar-resonance-148572/workspace/kevin-work/collection/33423852-49715f15-5735-4460-9cc0-ada1fa7bb18b?action=share&source=copy-link&creator=33423852)
 ```
+- Link Postman : [Link Postman](https://www.postman.com/lunar-resonance-148572/workspace/kevin-work/collection/33423852-49715f15-5735-4460-9cc0-ada1fa7bb18b?action=share&source=copy-link&creator=33423852)
+
