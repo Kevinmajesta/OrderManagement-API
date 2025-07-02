@@ -9,6 +9,8 @@ import (
 	"Kevinmajesta/OrderManagementAPI/pkg/email"
 	"Kevinmajesta/OrderManagementAPI/pkg/encrypt"
 	"Kevinmajesta/OrderManagementAPI/pkg/token"
+	"Kevinmajesta/OrderManagementAPI/worker"
+
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -126,15 +128,21 @@ func (s *userService) CreateUser(user *entity.User) (*entity.User, error) {
 		return nil, err
 	}
 
-	err = s.emailSender.SendWelcomeEmail(newUser.Email, newUser.Fullname, "")
-	if err != nil {
-		return nil, err
+	// Kirim job welcome email
+	worker.EmailQueue <- worker.EmailJob{
+		Type: "welcome",
+		To:   newUser.Email,
+		Name: newUser.Fullname,
 	}
 
+	// Kirim job verifikasi
 	resetCode := generateResetCode()
-	err = s.emailSender.SendVerificationEmail(newUser.Email, newUser.Fullname, resetCode)
-	if err != nil {
-		return nil, err
+
+	worker.EmailQueue <- worker.EmailJob{
+		Type:      "verification",
+		To:        newUser.Email,
+		Name:      newUser.Fullname,
+		ResetCode: resetCode,
 	}
 
 	err = s.userRepository.SaveVerifCode(user.UserId, resetCode)

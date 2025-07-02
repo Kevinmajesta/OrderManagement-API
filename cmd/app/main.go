@@ -1,46 +1,51 @@
 package main
 
 import (
-	"Kevinmajesta/OrderManagementAPI/configs" 
+	"log"
+
+	"Kevinmajesta/OrderManagementAPI/configs"
 	"Kevinmajesta/OrderManagementAPI/internal/builder"
 	"Kevinmajesta/OrderManagementAPI/pkg/cache"
 	"Kevinmajesta/OrderManagementAPI/pkg/encrypt"
 	"Kevinmajesta/OrderManagementAPI/pkg/postgres"
 	"Kevinmajesta/OrderManagementAPI/pkg/server"
 	"Kevinmajesta/OrderManagementAPI/pkg/token"
-	"log" 
+	"Kevinmajesta/OrderManagementAPI/worker"
+	"Kevinmajesta/OrderManagementAPI/pkg/email"
 )
 
 func main() {
-	// Load configurations from .env file
+	// Load environment variables
 	cfg, err := configs.NewConfig(".env")
 	checkError(err)
 
-	// Initialize PostgreSQL database connection
+	// Init PostgreSQL DB
 	db, err := postgres.InitPostgres(&cfg.Postgres)
 	checkError(err)
 
-	// Initialize Redis cache connection
+	// Init Redis
 	redisDB := cache.InitCache(&cfg.Redis)
 
-	// Initialize encryption tool
+	// Init encryption tools
 	encryptTool := encrypt.NewEncryptTool(cfg.Encrypt.SecretKey, cfg.Encrypt.IV)
 
-	// Initialize JWT token use case
+	// Init JWT generator
 	tokenUseCase := token.NewTokenUseCase(cfg.JWT.SecretKey)
 
-	// untuk menerima *configs.Config, BUKAN *entity.Config.
-	publicRoutes := builder.BuildPublicRoutes(db, redisDB, tokenUseCase, encryptTool, cfg) // Gunakan cfg
-	privateRoutes := builder.BuildPrivateRoutes(db, redisDB, encryptTool, cfg, tokenUseCase) // Gunakan cfg
+	emailSender := email.NewEmailSender(cfg) 
+	worker.StartEmailWorker(emailSender)
 
-	// Initialize and run the server
+	// Build Echo route groups
+	publicRoutes := builder.BuildPublicRoutes(db, redisDB, tokenUseCase, encryptTool, cfg)
+	privateRoutes := builder.BuildPrivateRoutes(db, redisDB, encryptTool, cfg, tokenUseCase)
+
+	// Start server
 	srv := server.NewServer("app", publicRoutes, privateRoutes, cfg.JWT.SecretKey)
 	srv.Run()
 }
 
 func checkError(err error) {
 	if err != nil {
-		// Gunakan log.Fatalf untuk keluar dengan pesan error yang jelas
 		log.Fatalf("Fatal error: %v", err)
 	}
 }

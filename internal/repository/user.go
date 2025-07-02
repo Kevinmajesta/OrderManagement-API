@@ -21,7 +21,9 @@ type UserRepository interface {
 	UpdateUser(user *entity.User) (*entity.User, error)
 	DeleteUser(user *entity.User) (bool, error)
 	GetUserProfileByID(id uuid.UUID) (*entity.User, error)
+	FindUserByResetCode(resetCode string) (*entity.User, error)
 	SaveResetCode(userID uuid.UUID, resetCode string, expiresAt time.Time) error
+	FindUserByVerifCode(verifCode string) (*entity.User, error)
 	SaveVerifCode(userID uuid.UUID, resetCode string) error
 	GetAllUserIds() ([]uuid.UUID, error)
 	UpdateUserJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error

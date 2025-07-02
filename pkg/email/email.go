@@ -2,17 +2,15 @@ package email
 
 import (
 	"fmt"
-	"strconv" // Import strconv untuk konversi port
+	"strconv" 
 
-	"Kevinmajesta/OrderManagementAPI/configs" // Perbaiki import path jika 'internal/entity' tidak lagi ada
-	// Jika struct Config dipindahkan ke package 'configs', maka import path-nya harus disesuaikan.
-	// Jika 'entity.Config' masih ada, pastikan itu mengacu pada struct Config yang benar.
+	"Kevinmajesta/OrderManagementAPI/configs" 
 
 	"gopkg.in/gomail.v2"
 )
 
 type EmailSender struct {
-	Config *configs.Config // Menggunakan configs.Config
+	Config *configs.Config 
 }
 
 func NewEmailSender(config *configs.Config) *EmailSender {
@@ -20,13 +18,11 @@ func NewEmailSender(config *configs.Config) *EmailSender {
 }
 
 func (e *EmailSender) SendEmail(to []string, subject, body string) error {
-	// Ambil From email dari konfigurasi SMTP_USER
 	from := e.Config.SMTP.User
 	password := e.Config.SMTP.Password
 	smtpHost := e.Config.SMTP.Host
-	smtpPortStr := e.Config.SMTP.Port // Port masih dalam string
+	smtpPortStr := e.Config.SMTP.Port
 
-	// Konversi port dari string ke int
 	smtpPort, err := strconv.Atoi(smtpPortStr)
 	if err != nil {
 		return fmt.Errorf("invalid SMTP port in config: %s", smtpPortStr)
@@ -38,7 +34,6 @@ func (e *EmailSender) SendEmail(to []string, subject, body string) error {
 	mailer.SetHeader("Subject", subject)
 	mailer.SetBody("text/plain", body)
 
-	// Inisialisasi dialer dengan user dan password dari config
 	dialer := gomail.NewDialer(smtpHost, smtpPort, from, password)
 	err = dialer.DialAndSend(mailer)
 	if err != nil {
