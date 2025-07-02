@@ -1,0 +1,15 @@
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS orders (
+    order_id UUID PRIMARY KEY,
+    user_id  UUID NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_price NUMERIC(10,2) NOT NULL CHECK (total_price >= 0),
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT users FOREIGN KEY (user_id) REFERENCES users(user_id ) ON DELETE CASCADE
+);
+
+COMMIT;

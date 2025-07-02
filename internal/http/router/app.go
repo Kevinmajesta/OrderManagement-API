@@ -60,7 +60,8 @@ func PublicRoutes(userHandler handler.UserHandler,
 }
 
 func PrivateRoutes(userHandler handler.UserHandler,
-	adminHandler handler.AdminHandler, productHandler handler.ProductHandler) []*route.Route {
+	adminHandler handler.AdminHandler, productHandler handler.ProductHandler,
+	orderHandler handler.OrderHandler) []*route.Route {
 	return []*route.Route{
 
 		{
@@ -122,6 +123,24 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Method:  http.MethodGet,
 			Path:    "/products",
 			Handler: productHandler.FindAllProduct,
+			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/orders",
+			Handler: orderHandler.CreateOrder,
+			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodPatch,
+			Path:    "/orders/:order_id/status",
+			Handler: orderHandler.UpdateOrderStatus,
+			Roles:   onlyAdmin,
+		},
+				{
+			Method:  http.MethodGet,
+			Path:    "/orders/history",
+			Handler: orderHandler.GetOrderHistory,
 			Roles:   allRoles,
 		},
 	}
