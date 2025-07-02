@@ -68,7 +68,7 @@ cd OrderManagement-API
 ### 2. Siapkan .env
 
 # PostgreSQL
-
+```bash
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
@@ -89,7 +89,7 @@ JWT_SECRET_KEY=your_jwt_secret_key
 # Redis
 
 REDIS_ADDR=localhost:6379
-
+```
 ### 3. Jalankan Database & Redis
 
 Gunakan Docker PostgreSQL dan Redis. Dengan cara docker-compose up
