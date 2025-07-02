@@ -12,6 +12,7 @@ import (
 	"Kevinmajesta/OrderManagementAPI/pkg/token"
 	"Kevinmajesta/OrderManagementAPI/worker"
 	"Kevinmajesta/OrderManagementAPI/pkg/email"
+	"Kevinmajesta/OrderManagementAPI/db/seed"
 )
 
 func main() {
@@ -34,6 +35,10 @@ func main() {
 
 	emailSender := email.NewEmailSender(cfg) 
 	worker.StartEmailWorker(emailSender)
+	worker.StartPhotoWorker()
+	seeder.SeedAdmin(db)
+	seeder.SeedUser(db)
+	seeder.SeedProducts(db)
 
 	// Build Echo route groups
 	publicRoutes := builder.BuildPublicRoutes(db, redisDB, tokenUseCase, encryptTool, cfg)

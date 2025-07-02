@@ -5,6 +5,7 @@ import (
 	"Kevinmajesta/OrderManagementAPI/internal/http/binder"
 	"Kevinmajesta/OrderManagementAPI/internal/service"
 	"Kevinmajesta/OrderManagementAPI/pkg/response"
+	"Kevinmajesta/OrderManagementAPI/worker"
 	"fmt"
 	"io"
 	"net/http"
@@ -49,23 +50,26 @@ func (h *ProductHandler) CreateProduct(c echo.Context) error {
 	defer src.Close()
 
 	photoID := uuid.New()
-	photoFilename := fmt.Sprintf("%s%s", photoID, ext)
-	photoPath := filepath.Join("assets", "photos", photoFilename)
+	photoFilename := photoID.String()
+	photoPath := "/assets/photos/" + photoFilename + ext
 
-	dst, err := os.Create(photoPath)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "Failed to create photo file"))
-	}
-	defer dst.Close()
+	// Kirim ke worker (gunakan pipe agar bisa dikirim ulang)
+	pr, pw := io.Pipe()
+	go func() {
+		defer pw.Close()
+		io.Copy(pw, src)
+	}()
 
-	if _, err := io.Copy(dst, src); err != nil {
-		return c.JSON(http.StatusInternalServerError, response.ErrorResponse(http.StatusInternalServerError, "Failed to copy photo file"))
+	worker.PhotoQueue <- worker.PhotoJob{
+		Src:      pr,
+		Filename: photoFilename,
+		Ext:      ext,
 	}
 
 	newProduct := &entity.Products{
 		Name:        input.Name,
 		Description: input.Description,
-		PhotoURL:    "/assets/photos/" + photoFilename,
+		PhotoURL:    photoPath,
 		Price:       input.Price,
 		Stock:       input.Stock,
 	}
@@ -77,6 +81,7 @@ func (h *ProductHandler) CreateProduct(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Successfully input a new product", product))
 }
+
 
 func (h *ProductHandler) UpdateProduct(c echo.Context) error {
 	var input binder.ProductUpdateRequest
