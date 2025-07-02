@@ -33,6 +33,7 @@ Order Management API adalah RESTful API sederhana yang dibangun menggunakan **Go
 ---
 
 ## 📁 Struktur Proyek
+```bash
 OrderManagement-API/
 ├── cmd/app/ # Entry point
 ├── internal/
@@ -55,14 +56,19 @@ OrderManagement-API/
 ├── .env
 ├── go.mod
 └── README.md
-
+```
 ## ⚙️ Setup & Jalankan
 
 ### 1. Clone Repo
+```bash
 git clone https://github.com/namakamu/OrderManagement-API.git
 cd OrderManagement-API
+```
+
 ### 2. Siapkan .env
+
 # PostgreSQL
+
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
@@ -70,30 +76,37 @@ POSTGRES_PASSWORD=yourpassword
 POSTGRES_DB=ordermanagement
 
 # SMTP (email)
+
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASSWORD=your-app-password
 
 # JWT
+
 JWT_SECRET_KEY=your_jwt_secret_key
 
 # Redis
+
 REDIS_ADDR=localhost:6379
+
 ### 3. Jalankan Database & Redis
+
 Gunakan Docker PostgreSQL dan Redis. Dengan cara docker-compose up
+
 ### 4. Jalankan Aplikasi
+
 ```bash
-go run cmd/app/main.go 
+go run cmd/app/main.go
 ```
+
 ### 5. Seeder
+
 Seeder akan otomatis dijalankan saat server aktif
 
 ## 💡 Notes
 
 = Gunakan tool seperti Postman atau Insomnia untuk test API.
 = Email & upload berjalan secara asynchronous menggunakan goroutine
+
 - Link Postman : [Link Postman](https://www.postman.com/lunar-resonance-148572/workspace/kevin-work/collection/33423852-49715f15-5735-4460-9cc0-ada1fa7bb18b?action=share&source=copy-link&creator=33423852)
-
-
-
