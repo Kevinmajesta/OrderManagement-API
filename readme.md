@@ -66,9 +66,8 @@ cd OrderManagement-API
 ```
 
 ### 2. Siapkan .env
-
-# PostgreSQL
 ```bash
+# PostgreSQL
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
@@ -105,8 +104,9 @@ go run cmd/app/main.go
 Seeder akan otomatis dijalankan saat server aktif
 
 ## 💡 Notes
-
+```bash
 = Gunakan tool seperti Postman atau Insomnia untuk test API.
 = Email & upload berjalan secara asynchronous menggunakan goroutine
 
 - Link Postman : [Link Postman](https://www.postman.com/lunar-resonance-148572/workspace/kevin-work/collection/33423852-49715f15-5735-4460-9cc0-ada1fa7bb18b?action=share&source=copy-link&creator=33423852)
+```
