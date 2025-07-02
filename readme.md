@@ -97,6 +97,7 @@ Gunakan Docker PostgreSQL dan Redis. Dengan cara docker-compose up kemudian jala
 
 ```bash
 go mod tidy
+migrate -path db/migrations -database "postgres://cuaniaga:cuaniaga@localhost:5432/cuaniaga?sslmode=disable" up
 go run cmd/app/main.go
 ```
 
