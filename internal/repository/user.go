@@ -7,6 +7,7 @@ import (
 
 	"Kevinmajesta/OrderManagementAPI/internal/entity"
 	"Kevinmajesta/OrderManagementAPI/pkg/cache"
+
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -22,15 +23,10 @@ type UserRepository interface {
 	GetUserProfileByID(id uuid.UUID) (*entity.User, error)
 	SaveResetCode(userID uuid.UUID, resetCode string, expiresAt time.Time) error
 	SaveVerifCode(userID uuid.UUID, resetCode string) error
-	FindUserByResetCode(resetCode string) (*entity.User, error)
-	FindUserByVerifCode(verifCode string) (*entity.User, error)
-	FindCartByUserId(UserId uuid.UUID) (int, error)
-	GetEventInCart(UserId uuid.UUID) ([]int, error)
-	GetEventName(EventId uuid.UUID) (string, error)
 	GetAllUserIds() ([]uuid.UUID, error)
 	UpdateUserJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error
 	CheckUser(UserId uuid.UUID) (*entity.User, error)
-	CheckUserExists(id uuid.UUID) (bool, error) 
+	CheckUserExists(id uuid.UUID) (bool, error)
 }
 
 type userRepository struct {
@@ -70,42 +66,41 @@ func (r *userRepository) CreateUser(user *entity.User) (*entity.User, error) {
 }
 
 func (r *userRepository) CheckUserExists(id uuid.UUID) (bool, error) {
-    var count int64
-    if err := r.db.Model(&entity.User{}).Where("user_id = ?", id).Count(&count).Error; err != nil {
-        return false, err
-    }
-    return count > 0, nil
+	var count int64
+	if err := r.db.Model(&entity.User{}).Where("user_id = ?", id).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func (r *userRepository) UpdateUser(user *entity.User) (*entity.User, error) {
-    fields := make(map[string]interface{})
+	fields := make(map[string]interface{})
 
-    if user.Fullname != "" {
-        fields["fullname"] = user.Fullname
-    }
-    if user.Email != "" {
-        fields["email"] = user.Email
-    }
-    if user.Password != "" {
-        fields["password"] = user.Password
-    }
-    if user.Role != "" {
-        fields["role"] = user.Role
-    }
-    if user.Verification {
-        fields["verification"] = user.Verification
-    }
-    if user.Phone != "" {
-        fields["phone"] = user.Phone
-    }
+	if user.Fullname != "" {
+		fields["fullname"] = user.Fullname
+	}
+	if user.Email != "" {
+		fields["email"] = user.Email
+	}
+	if user.Password != "" {
+		fields["password"] = user.Password
+	}
+	if user.Role != "" {
+		fields["role"] = user.Role
+	}
+	if user.Verification {
+		fields["verification"] = user.Verification
+	}
+	if user.Phone != "" {
+		fields["phone"] = user.Phone
+	}
 
-    if err := r.db.Model(user).Where("user_id = ?", user.UserId).Updates(fields).Error; err != nil {
-        return user, err
-    }
+	if err := r.db.Model(user).Where("user_id = ?", user.UserId).Updates(fields).Error; err != nil {
+		return user, err
+	}
 
-    return user, nil
+	return user, nil
 }
-
 
 func (r *userRepository) DeleteUser(user *entity.User) (bool, error) {
 	if err := r.db.Delete(&entity.User{}, user.UserId).Error; err != nil {
@@ -181,36 +176,6 @@ func (r *userRepository) FindUserByVerifCode(verifCode string) (*entity.User, er
 		return nil, err
 	}
 	return &user, nil
-}
-
-func (r *userRepository) FindCartByUserId(UserId uuid.UUID) (int, error) {
-	var userId int
-
-	if err := r.db.Raw("SELECT event_id FROM carts WHERE user_id = ?", UserId).Scan(&userId).Error; err != nil {
-		return 0, err
-	}
-
-	return userId, nil
-}
-
-func (r *userRepository) GetEventInCart(UserId uuid.UUID) ([]int, error) {
-	var events []int
-
-	if err := r.db.Raw("SELECT event_id FROM carts WHERE user_id = ?", UserId).Scan(&events).Error; err != nil {
-		return []int{}, err
-	}
-
-	return events, nil
-}
-
-func (r *userRepository) GetEventName(EventId uuid.UUID) (string, error) {
-	var titleEvent string
-
-	if err := r.db.Raw("SELECT title_event FROM events WHERE event_id = ?", EventId).Scan(&titleEvent).Error; err != nil {
-		return "", err
-	}
-
-	return titleEvent, nil
 }
 
 func (u *userRepository) UpdateUserJwtToken(userID uuid.UUID, token string, expiresAt time.Time) error {
