@@ -91,11 +91,12 @@ REDIS_ADDR=localhost:6379
 ```
 ### 3. Jalankan Database & Redis
 
-Gunakan Docker PostgreSQL dan Redis. Dengan cara docker-compose up
+Gunakan Docker PostgreSQL dan Redis. Dengan cara docker-compose up kemudian jalankan postgre dan redis
 
 ### 4. Jalankan Aplikasi
 
 ```bash
+go mod tidy
 go run cmd/app/main.go
 ```
 
