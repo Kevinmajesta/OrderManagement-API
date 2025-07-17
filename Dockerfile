@@ -17,9 +17,13 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/myapp cmd/app/main.go
 
 # Tahap kedua: Produksi
+# Tahap kedua: Produksi
 FROM alpine:latest
 
 WORKDIR /app
+
+# Menginstal tzdata untuk dukungan zona waktu
+RUN apk add --no-cache tzdata
 
 # Mengcopy binary dari tahap pembangunan
 COPY --from=builder /app/myapp .

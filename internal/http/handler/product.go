@@ -82,7 +82,6 @@ func (h *ProductHandler) CreateProduct(c echo.Context) error {
 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "Successfully input a new product", product))
 }
 
-
 func (h *ProductHandler) UpdateProduct(c echo.Context) error {
 	var input binder.ProductUpdateRequest
 
@@ -202,4 +201,5 @@ func (h *ProductHandler) FindAllProduct(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, response.SuccessResponse(http.StatusOK, "success show data products", products))
+
 }

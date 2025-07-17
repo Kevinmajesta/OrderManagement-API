@@ -18,14 +18,15 @@ type OrderRepository interface {
 
 type orderRepository struct {
 	db        *gorm.DB
-	cacheable cache.Cacheable
+	Cacheable cache.Cacheable
 }
 
 func NewOrderRepository(db *gorm.DB, cacheable cache.Cacheable) OrderRepository {
-	return &orderRepository{db: db, cacheable: cacheable}
+	return &orderRepository{db: db, Cacheable: cacheable}
 }
 
 func (r *orderRepository) CreateOrder(order *entity.Order) error {
+	r.Cacheable.Delete("FindAllProducts_page_1")
 	return r.db.Create(order).Error
 }
 

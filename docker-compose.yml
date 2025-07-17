@@ -8,17 +8,19 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - redis
-      - db
+      redis:
+        condition: service_healthy # Tambahkan kondisi ini
+      db:
+        condition: service_healthy # Tambahkan kondisi ini
     environment:
       ENV: "dev"
       PORT: "8080"
-      POSTGRES_HOST: "db"          # ganti localhost dengan db
+      POSTGRES_HOST: "db"
       POSTGRES_PORT: "5432"
       POSTGRES_USER: "cuaniaga"
       POSTGRES_PASSWORD: "cuaniaga"
       POSTGRES_DATABASE: "cuaniaga"
-      REDIS_HOST: "redis"          # ganti localhost dengan redis
+      REDIS_HOST: "redis"
       REDIS_PORT: "6379"
       JWT_SECRET_KEY: "839a1d8b717e2fb54e60e153140aee945ee03cf87a9c2f0eb67e43739931ebf3"
 
@@ -26,6 +28,11 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+    healthcheck: # Tambahkan healthcheck untuk Redis
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db:
     image: postgres:latest
@@ -35,3 +42,8 @@ services:
       - POSTGRES_DB=cuaniaga
     ports:
       - "5432:5432"
+    healthcheck: # Tambahkan healthcheck untuk PostgreSQL
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
