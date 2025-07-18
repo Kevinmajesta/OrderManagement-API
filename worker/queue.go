@@ -13,18 +13,16 @@ type EmailSender interface {
 }
 
 func StartEmailWorker(emailSender EmailSender) {
-	for i := 0; i < 3; i++ {
-		go func(id int) {
-			for job := range EmailQueue {
-				switch job.Type {
-				case "welcome":
-					_ = emailSender.SendWelcomeEmail(job.To, job.Name, "")
-				case "verification":
-					_ = emailSender.SendVerificationEmail(job.To, job.Name, job.ResetCode)
-				}
-			}
-		}(i)
-	}
+    go func() {
+        for job := range EmailQueue {
+            switch job.Type {
+            case "welcome":
+                _ = emailSender.SendWelcomeEmail(job.To, job.Name, "")
+            case "verification":
+                _ = emailSender.SendVerificationEmail(job.To, job.Name, job.ResetCode)
+            }
+        }
+    }()
 }
 
 func processEmailJob(workerID int, job EmailJob) {
