@@ -18,14 +18,14 @@ import (
 
 func BuildPublicRoutes(db *gorm.DB, redisDB *redis.Client, tokenUseCase token.TokenUseCase, encryptTool encrypt.EncryptTool,
 	cfg *configs.Config) []*route.Route {
-	emailService := email.NewEmailSender(cfg)
+	EmailSenderService := email.NewEmailSender(cfg)
 	userRepository := repository.NewUserRepository(db, nil)
-	userService := service.NewUserService(userRepository, tokenUseCase, encryptTool, emailService)
+	userService := service.NewUserService(userRepository, tokenUseCase, encryptTool, EmailSenderService)
 
 	userHandler := handler.NewUserHandler(userService)
 
 	adminRepository := repository.NewAdminRepository(db, nil)
-	adminService := service.NewAdminService(adminRepository, tokenUseCase, encryptTool, emailService)
+	adminService := service.NewAdminService(adminRepository, tokenUseCase, encryptTool, EmailSenderService)
 	adminHandler := handler.NewAdminHandler(adminService)
 
 	return router.PublicRoutes(userHandler, adminHandler)

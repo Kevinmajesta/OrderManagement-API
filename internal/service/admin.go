@@ -28,11 +28,11 @@ type adminService struct {
 	adminRepository repository.AdminRepository
 	tokenUseCase    token.TokenUseCase
 	encryptTool     encrypt.EncryptTool
-	emailSender     *email.EmailSender
+	emailSender     email.EmailSenderService 
 }
 
 func NewAdminService(adminRepository repository.AdminRepository, tokenUseCase token.TokenUseCase,
-	encryptTool encrypt.EncryptTool, emailSender *email.EmailSender) *adminService {
+	encryptTool encrypt.EncryptTool, emailSender email.EmailSenderService ) *adminService {
 
 	return &adminService{
 		adminRepository: adminRepository,

@@ -1,21 +1,40 @@
+// pkg/email/email.go
 package email
 
 import (
 	"fmt"
-	"strconv" 
+	"strconv"
 
-	"Kevinmajesta/OrderManagementAPI/configs" 
+	"Kevinmajesta/OrderManagementAPI/configs" // Pastikan ini path modul Anda
 
 	"gopkg.in/gomail.v2"
 )
 
-type EmailSender struct {
-	Config *configs.Config 
+// --- MULAI PERUBAHAN ---
+
+// EmailSenderService adalah interface yang mendefinisikan metode pengiriman email.
+// Kita memberikan nama yang sedikit berbeda (EmailSenderService) agar tidak bentrok
+// dengan nama struct EmailSender yang sudah ada, atau Anda bisa menamai interface EmailSender
+// dan struct EmailSenderImpl.
+type EmailSenderService interface {
+	SendEmail(to []string, subject, body string) error
+	SendWelcomeEmail(to, name, message string) error
+	SendResetPasswordEmail(to, name, resetCode string) error
+	SendVerificationEmail(to, name, code string) error
+	SendTransactionInfo(to, Transactions_id, Cart_id, User_id, Fullname_user, Trx_date, Payment, Payment_url, Amount string) error
 }
 
-func NewEmailSender(config *configs.Config) *EmailSender {
-	return &EmailSender{Config: config}
+// EmailSender adalah implementasi konkret dari EmailSenderService.
+type EmailSender struct { // Nama struct tetap EmailSender
+	Config *configs.Config
 }
+
+// NewEmailSender adalah constructor yang mengembalikan interface EmailSenderService.
+func NewEmailSender(config *configs.Config) EmailSenderService { // <--- Return type-nya sekarang interface
+	return &EmailSender{Config: config} // Mengembalikan pointer ke struct yang mengimplementasikan interface
+}
+
+// --- AKHIR PERUBAHAN ---
 
 func (e *EmailSender) SendEmail(to []string, subject, body string) error {
 	from := e.Config.SMTP.User
@@ -43,6 +62,8 @@ func (e *EmailSender) SendEmail(to []string, subject, body string) error {
 	return nil
 }
 
+// Metode lainnya tetap sama, karena mereka sudah memiliki receiver *EmailSender
+// yang secara implisit akan mengimplementasikan metode-metode pada EmailSenderService.
 func (e *EmailSender) SendWelcomeEmail(to, name, message string) error {
 	subject := "Welcome Email | Depublic"
 	body := fmt.Sprintf("Dear %s,\nThis is a welcome email message from depublic\n\nDepublic Team", name)

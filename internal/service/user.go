@@ -34,13 +34,13 @@ type userService struct {
 	userRepository repository.UserRepository
 	tokenUseCase   token.TokenUseCase
 	encryptTool    encrypt.EncryptTool
-	emailSender    *email.EmailSender
+	emailSender    email.EmailSenderService 
 }
 
 var InternalError = "internal server error"
 
 func NewUserService(userRepository repository.UserRepository, tokenUseCase token.TokenUseCase,
-	encryptTool encrypt.EncryptTool, emailSender *email.EmailSender) *userService {
+	encryptTool encrypt.EncryptTool, emailSender email.EmailSenderService ) *userService {
 
 	return &userService{
 		userRepository: userRepository,
@@ -68,10 +68,21 @@ func (s *userService) LoginUser(email string, password string) (string, error) {
 
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		panic(err)
+		// Sebaiknya hindari panic di logic bisnis.
+		// return "", errors.New("internal server error: failed to load timezone")
+		panic(err) // Sesuai dengan kode asli Anda, biarkan ini panic
 	}
 
-	user.Phone, _ = s.encryptTool.Decrypt(user.Phone)
+	// --- Bagian yang sudah diperbaiki untuk menangani error dekripsi ---
+	decryptedPhone, err := s.encryptTool.Decrypt(user.Phone)
+	if err != nil {
+		// Jika dekripsi gagal, kembalikan error dan hentikan eksekusi di sini.
+		// Pesan error ini harus konsisten dengan expectedError di test case Anda.
+		return "", errors.New("there is an error in the system")
+	}
+	user.Phone = decryptedPhone // Update user.Phone hanya jika dekripsi berhasil
+	// --- Akhir bagian perbaikan ---
+
 	expiredTimeInJakarta := expiredTime.In(location)
 
 	claims := token.JwtCustomClaims{
