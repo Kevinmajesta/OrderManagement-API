@@ -73,7 +73,28 @@ func (s *orderService) CreateOrder(order *entity.Order) error {
 
 	order.OrderID = uuid.New()
 	order.TotalPrice = totalPrice
-	order.Status = "pending"
+	if order.PaymentMethod == "" {
+		order.PaymentMethod = "midtrans"
+	}
+
+	switch order.PaymentMethod {
+	case "cash":
+		if order.PaidAmount <= 0 {
+			tx.Rollback()
+			return errors.New("paid_amount is required for cash payment")
+		}
+		if order.PaidAmount < totalPrice {
+			tx.Rollback()
+			return errors.New("paid_amount is less than total price")
+		}
+		order.ChangeAmount = order.PaidAmount - totalPrice
+		order.Status = "paid"
+	case "midtrans":
+		order.Status = "pending"
+	default:
+		tx.Rollback()
+		return errors.New("invalid payment_method, use 'cash' or 'midtrans'")
+	}
 
 	if err := tx.Create(order).Error; err != nil {
 		tx.Rollback()
@@ -83,6 +104,14 @@ func (s *orderService) CreateOrder(order *entity.Order) error {
 	// Commit transaction first
 	if err := tx.Commit().Error; err != nil {
 		return err
+	}
+
+	if order.PaymentMethod == "cash" {
+		return nil
+	}
+
+	if s.midtransService == nil {
+		return errors.New("midtrans service is not configured")
 	}
 
 	// Get user details for Midtrans

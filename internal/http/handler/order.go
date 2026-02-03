@@ -35,8 +35,10 @@ func (h *OrderHandler) CreateOrder(c echo.Context) error {
 	}
 
 	order := &entity.Order{
-		UserID:     req.UserID,
-		OrderItems: orderItems,
+		UserID:        req.UserID,
+		PaymentMethod: req.PaymentMethod,
+		PaidAmount:    req.PaidAmount,
+		OrderItems:    orderItems,
 	}
 
 	if err := h.orderService.CreateOrder(order); err != nil {
