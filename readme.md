@@ -260,25 +260,6 @@ GET    /reports/sales/monthly       # Monthly sales report
 6. **Generate Receipt** → Print/save invoice
 7. **View Reports** → (Admin) Lihat sales analytics
 
----
-
-## 🧪 Testing dengan Postman
-
-Import collection Postman untuk test semua endpoint:
-- [Postman Collection](https://www.postman.com/lunar-resonance-148572/workspace/kevin-work/collection/33423852-49715f15-5735-4460-9cc0-ada1fa7bb18b?action=share&creator=33423852)
-
-Atau manual test:
-```bash
-# Login
-curl -X POST http://localhost:8080/app/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"password123"}'
-
-# Get Products
-curl -X GET http://localhost:8080/app/api/v1/products \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
 ## 💡 Notes
 
 - Server auto-seeds admin & demo user pada startup
@@ -290,8 +271,7 @@ curl -X GET http://localhost:8080/app/api/v1/products \
 
 ## 👨‍💼 Author
 
-**Kevin Majesta**  
-E-commerce & POS System Developer
+**Kevin Majesta Ivano**  
 
 
 
