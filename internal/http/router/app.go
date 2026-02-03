@@ -67,7 +67,7 @@ func PublicRoutes(userHandler handler.UserHandler,
 
 func PrivateRoutes(userHandler handler.UserHandler,
 	adminHandler handler.AdminHandler, productHandler handler.ProductHandler,
-	orderHandler handler.OrderHandler, cartHandler *handler.CartHandler, receiptHandler *handler.ReceiptHandler) []*route.Route {
+	orderHandler handler.OrderHandler, cartHandler *handler.CartHandler, receiptHandler *handler.ReceiptHandler, salesReportHandler *handler.SalesReportHandler) []*route.Route {
 	return []*route.Route{
 
 		{
@@ -196,6 +196,24 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Path:    "/receipts",
 			Handler: receiptHandler.GetReceiptsByUserID,
 			Roles:   allRoles,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/reports/sales/date-range",
+			Handler: salesReportHandler.GetSalesReportByDateRange,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/reports/sales/daily",
+			Handler: salesReportHandler.GetDailySalesReport,
+			Roles:   onlyAdmin,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/reports/sales/monthly",
+			Handler: salesReportHandler.GetMonthlySalesReport,
+			Roles:   onlyAdmin,
 		},
 	}
 }

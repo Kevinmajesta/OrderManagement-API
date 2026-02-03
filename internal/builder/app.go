@@ -65,5 +65,9 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 	receiptService := service.NewReceiptService(receiptRepository, orderRepository, db)
 	receiptHandler := handler.NewReceiptHandler(receiptService)
 
-	return router.PrivateRoutes(userHandler, adminHandler, productHandler, *orderHandler, cartHandler, receiptHandler)
+	salesReportRepository := repository.NewSalesReportRepository(db)
+	salesReportService := service.NewSalesReportService(salesReportRepository)
+	salesReportHandler := handler.NewSalesReportHandler(salesReportService)
+
+	return router.PrivateRoutes(userHandler, adminHandler, productHandler, *orderHandler, cartHandler, receiptHandler, salesReportHandler)
 }
