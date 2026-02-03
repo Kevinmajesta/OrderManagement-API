@@ -11,7 +11,6 @@ import (
 	"Kevinmajesta/OrderManagementAPI/pkg/token"
 	"Kevinmajesta/OrderManagementAPI/worker"
 
-
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -34,13 +33,13 @@ type userService struct {
 	userRepository repository.UserRepository
 	tokenUseCase   token.TokenUseCase
 	encryptTool    encrypt.EncryptTool
-	emailSender    email.EmailSenderService 
+	emailSender    email.EmailSenderService
 }
 
 var InternalError = "internal server error"
 
 func NewUserService(userRepository repository.UserRepository, tokenUseCase token.TokenUseCase,
-	encryptTool encrypt.EncryptTool, emailSender email.EmailSenderService ) *userService {
+	encryptTool encrypt.EncryptTool, emailSender email.EmailSenderService) *userService {
 
 	return &userService{
 		userRepository: userRepository,
@@ -72,16 +71,6 @@ func (s *userService) LoginUser(email string, password string) (string, error) {
 		// return "", errors.New("internal server error: failed to load timezone")
 		panic(err) // Sesuai dengan kode asli Anda, biarkan ini panic
 	}
-
-	// --- Bagian yang sudah diperbaiki untuk menangani error dekripsi ---
-	decryptedPhone, err := s.encryptTool.Decrypt(user.Phone)
-	if err != nil {
-		// Jika dekripsi gagal, kembalikan error dan hentikan eksekusi di sini.
-		// Pesan error ini harus konsisten dengan expectedError di test case Anda.
-		return "", errors.New("there is an error in the system")
-	}
-	user.Phone = decryptedPhone // Update user.Phone hanya jika dekripsi berhasil
-	// --- Akhir bagian perbaikan ---
 
 	expiredTimeInJakarta := expiredTime.In(location)
 

@@ -4,15 +4,16 @@ import (
 	"log"
 
 	"Kevinmajesta/OrderManagementAPI/configs"
+	seeder "Kevinmajesta/OrderManagementAPI/db/seed"
 	"Kevinmajesta/OrderManagementAPI/internal/builder"
 	"Kevinmajesta/OrderManagementAPI/pkg/cache"
+	"Kevinmajesta/OrderManagementAPI/pkg/email"
 	"Kevinmajesta/OrderManagementAPI/pkg/encrypt"
+	"Kevinmajesta/OrderManagementAPI/pkg/midtrans"
 	"Kevinmajesta/OrderManagementAPI/pkg/postgres"
 	"Kevinmajesta/OrderManagementAPI/pkg/server"
 	"Kevinmajesta/OrderManagementAPI/pkg/token"
 	"Kevinmajesta/OrderManagementAPI/worker"
-	"Kevinmajesta/OrderManagementAPI/pkg/email"
-	"Kevinmajesta/OrderManagementAPI/db/seed"
 )
 
 func main() {
@@ -33,7 +34,10 @@ func main() {
 	// Init JWT generator
 	tokenUseCase := token.NewTokenUseCase(cfg.JWT.SecretKey)
 
-	emailSender := email.NewEmailSender(cfg) 
+	// Init Midtrans
+	midtransService := midtrans.NewMidtransService(&cfg.Midtrans)
+
+	emailSender := email.NewEmailSender(cfg)
 	worker.StartEmailWorker(emailSender)
 	worker.StartPhotoWorker()
 	seeder.SeedAdmin(db)
@@ -41,8 +45,8 @@ func main() {
 	seeder.SeedProducts(db)
 
 	// Build Echo route groups
-	publicRoutes := builder.BuildPublicRoutes(db, redisDB, tokenUseCase, encryptTool, cfg)
-	privateRoutes := builder.BuildPrivateRoutes(db, redisDB, encryptTool, cfg, tokenUseCase)
+	publicRoutes := builder.BuildPublicRoutes(db, redisDB, tokenUseCase, encryptTool, cfg, midtransService)
+	privateRoutes := builder.BuildPrivateRoutes(db, redisDB, encryptTool, cfg, tokenUseCase, midtransService)
 
 	// Start server
 	srv := server.NewServer("app", publicRoutes, privateRoutes, cfg.JWT.SecretKey)

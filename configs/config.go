@@ -8,18 +8,19 @@ import (
 )
 
 type Config struct {
-	Env      string         `env:"ENV"` // Dihapus envDefault
+	Env      string         `env:"ENV"`  // Dihapus envDefault
 	Port     string         `env:"PORT"` // Dihapus envDefault
 	Postgres PostgresConfig `envPrefix:"POSTGRES_"`
 	Redis    RedisConfig    `envPrefix:"REDIS_"`
 	JWT      JwtConfig      `envPrefix:"JWT_"`
 	Encrypt  EncryptConfig  `envPrefix:"ENCRYPT_"`
 	SMTP     SMTPConfig     `envPrefix:"SMTP_"`
+	Midtrans MidtransConfig `envPrefix:"MIDTRANS_"`
 }
 
 type SMTPConfig struct {
-	Host     string `env:"HOST"`     // Dihapus envDefault
-	Port     string `env:"PORT"`     // Dihapus envDefault
+	Host     string `env:"HOST"` // Dihapus envDefault
+	Port     string `env:"PORT"` // Dihapus envDefault
 	User     string `env:"USER"`
 	Password string `env:"PASSWORD"`
 }
@@ -45,6 +46,12 @@ type RedisConfig struct {
 type EncryptConfig struct {
 	SecretKey string `env:"SECRET_KEY"`
 	IV        string `env:"IV"`
+}
+
+type MidtransConfig struct {
+	ServerKey    string `env:"SERVER_KEY"`
+	ClientKey    string `env:"CLIENT_KEY"`
+	IsProduction string `env:"IS_PRODUCTION"`
 }
 
 func NewConfig(envPath string) (*Config, error) {

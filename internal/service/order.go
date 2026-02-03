@@ -3,8 +3,8 @@ package service
 import (
 	"Kevinmajesta/OrderManagementAPI/internal/entity"
 	"Kevinmajesta/OrderManagementAPI/internal/repository"
+	"Kevinmajesta/OrderManagementAPI/pkg/midtrans"
 	"errors"
-
 	"fmt"
 
 	"github.com/google/uuid"
@@ -14,98 +14,112 @@ import (
 type OrderService interface {
 	CreateOrder(order *entity.Order) error
 	UpdateOrderStatus(orderID uuid.UUID, status string) error
+	UpdateOrderStatusByOrderID(orderID string, status string) error
 	GetOrderHistory(userID string) ([]entity.Order, error)
 }
 
 type orderService struct {
-	repo repository.OrderRepository // Pastikan ini mengarah ke interface repository Anda
-	db   *gorm.DB
+	repo            repository.OrderRepository
+	db              *gorm.DB
+	midtransService *midtrans.MidtransService
 }
 
-func NewOrderService(repo repository.OrderRepository, db *gorm.DB) *orderService {
-	return &orderService{repo: repo, db: db}
+func NewOrderService(repo repository.OrderRepository, db *gorm.DB, midtransService *midtrans.MidtransService) *orderService {
+	return &orderService{
+		repo:            repo,
+		db:              db,
+		midtransService: midtransService,
+	}
 }
 
-// CreateOrder handles the entire order creation process, including stock validation and update.
 func (s *orderService) CreateOrder(order *entity.Order) error {
 	var totalPrice float64
 
-	// --- Mulai Transaksi di sini ---
 	tx := s.db.Begin()
 	if tx.Error != nil {
-		return fmt.Errorf("failed to begin transaction: %w", tx.Error)
+		return tx.Error
 	}
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
-	}() // Handle panic during transaction
+	}()
 
-	// Menggunakan tx untuk operasi database dalam transaksi
-	// Pastikan repository Anda menerima *gorm.DB atau *gorm.Tx
-
-	// Loop items, cek stock, hitung harga, dan kurangi stok SECARA ATOMIK
 	for i, item := range order.OrderItems {
+		// Generate UUID untuk OrderItem
+		order.OrderItems[i].OrderItemID = uuid.New()
+		
 		var product entity.Products
-		// 1. Kunci baris produk dengan FOR UPDATE
-		// Pastikan ProductID adalah string UUID yang valid untuk GORM
 		err := tx.Set("gorm:query_option", "FOR UPDATE").
 			Where("product_id = ?", item.ProductID.String()).
 			First(&product).Error
 
 		if err != nil {
 			tx.Rollback()
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return errors.New("product not found: " + item.ProductID.String())
-			}
-			return fmt.Errorf("failed to get product with lock: %w", err)
+			return err
 		}
 
-		// 2. Cek stok setelah baris dikunci
 		if product.Stock < item.Quantity {
-			tx.Rollback() // Rollback jika stok tidak cukup
-			return errors.New("insufficient stock for product: " + product.Name)
+			tx.Rollback()
+			return errors.New("stok tidak cukup")
 		}
 
-		// 3. Update stok di dalam transaksi
-		newStock := product.Stock - item.Quantity
-		err = tx.Model(&entity.Products{}).
-			Where("product_id = ?", item.ProductID.String()).
-			Update("stock", newStock).Error
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("failed to update product stock: %w", err)
-		}
+		tx.Model(&product).Update("stock", product.Stock-item.Quantity)
 
 		order.OrderItems[i].PricePerItem = product.Price
 		order.OrderItems[i].TotalPrice = float64(item.Quantity) * product.Price
-		order.OrderItems[i].OrderItemID = uuid.New() // Generate UUID for OrderItem if needed
-
 		totalPrice += order.OrderItems[i].TotalPrice
 	}
 
 	order.OrderID = uuid.New()
 	order.TotalPrice = totalPrice
-	order.Status = "pending" // Set default status
+	order.Status = "pending"
 
-	// 4. Simpan order dalam transaksi yang sama
-	// Anda mungkin perlu memodifikasi `CreateOrder` di repository untuk menerima *gorm.Tx
-	err := tx.Create(order).Error // Langsung gunakan tx untuk membuat order
-	if err != nil {
+	if err := tx.Create(order).Error; err != nil {
 		tx.Rollback()
-		return fmt.Errorf("failed to create order: %w", err)
+		return err
 	}
 
-	// 5. Commit transaksi jika semua berhasil
+	// Commit transaction first
 	if err := tx.Commit().Error; err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
+		return err
 	}
+
+	// Get user details for Midtrans
+	var user entity.User
+	if err := s.db.Where("user_id = ?", order.UserID).First(&user).Error; err != nil {
+		return fmt.Errorf("failed to get user details: %v", err)
+	}
+
+	// Create Midtrans transaction (after order saved)
+	snapResp, errMidtrans := s.midtransService.CreateTransaction(
+		order.OrderID.String(),
+		int64(totalPrice),
+		user.Fullname,
+		user.Email,
+		user.Phone,
+	)
+	if errMidtrans != nil {
+		return fmt.Errorf("midtrans error: %v", errMidtrans)
+	}
+
+	// Set to order object for response (tidak disimpan ke DB)
+	order.SnapToken = snapResp.Token
+	order.RedirectURL = snapResp.RedirectURL
 
 	return nil
 }
 
 func (s *orderService) UpdateOrderStatus(orderID uuid.UUID, status string) error {
 	return s.repo.UpdateOrderStatus(orderID, status)
+}
+
+func (s *orderService) UpdateOrderStatusByOrderID(orderID string, status string) error {
+	orderUUID, err := uuid.Parse(orderID)
+	if err != nil {
+		return fmt.Errorf("invalid order_id format: %v", err)
+	}
+	return s.repo.UpdateOrderStatus(orderUUID, status)
 }
 
 func (s *orderService) GetOrderHistory(userID string) ([]entity.Order, error) {

@@ -9,6 +9,7 @@ import (
 	"Kevinmajesta/OrderManagementAPI/pkg/cache"
 	"Kevinmajesta/OrderManagementAPI/pkg/email"
 	"Kevinmajesta/OrderManagementAPI/pkg/encrypt"
+	"Kevinmajesta/OrderManagementAPI/pkg/midtrans"
 	"Kevinmajesta/OrderManagementAPI/pkg/route"
 	"Kevinmajesta/OrderManagementAPI/pkg/token"
 
@@ -17,7 +18,7 @@ import (
 )
 
 func BuildPublicRoutes(db *gorm.DB, redisDB *redis.Client, tokenUseCase token.TokenUseCase, encryptTool encrypt.EncryptTool,
-	cfg *configs.Config) []*route.Route {
+	cfg *configs.Config, midtransService *midtrans.MidtransService) []*route.Route {
 	EmailSenderService := email.NewEmailSender(cfg)
 	userRepository := repository.NewUserRepository(db, nil)
 	userService := service.NewUserService(userRepository, tokenUseCase, encryptTool, EmailSenderService)
@@ -28,10 +29,16 @@ func BuildPublicRoutes(db *gorm.DB, redisDB *redis.Client, tokenUseCase token.To
 	adminService := service.NewAdminService(adminRepository, tokenUseCase, encryptTool, EmailSenderService)
 	adminHandler := handler.NewAdminHandler(adminService)
 
-	return router.PublicRoutes(userHandler, adminHandler)
+	// Order service for Midtrans webhook
+	cacheable := cache.NewCacheable(redisDB)
+	orderRepository := repository.NewOrderRepository(db, cacheable)
+	orderService := service.NewOrderService(orderRepository, db, midtransService)
+	midtransHandler := handler.NewMidtransHandler(orderService)
+
+	return router.PublicRoutes(userHandler, adminHandler, midtransHandler)
 }
 
-func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.EncryptTool, cfg *configs.Config, tokenUseCase token.TokenUseCase) []*route.Route {
+func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.EncryptTool, cfg *configs.Config, tokenUseCase token.TokenUseCase, midtransService *midtrans.MidtransService) []*route.Route {
 	cacheable := cache.NewCacheable(redisDB)
 	userRepository := repository.NewUserRepository(db, cacheable)
 	userService := service.NewUserService(userRepository, nil, encryptTool, nil)
@@ -47,7 +54,7 @@ func BuildPrivateRoutes(db *gorm.DB, redisDB *redis.Client, encryptTool encrypt.
 	productHandler := handler.NewProductHandler(productService)
 
 	orderRepository := repository.NewOrderRepository(db, cacheable)
-	orderService := service.NewOrderService(orderRepository, db)
+	orderService := service.NewOrderService(orderRepository, db, midtransService)
 	orderHandler := handler.NewOrderHandler(orderService)
 
 	return router.PrivateRoutes(userHandler, adminHandler, productHandler, *orderHandler)

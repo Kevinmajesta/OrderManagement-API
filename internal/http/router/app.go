@@ -19,7 +19,8 @@ var (
 )
 
 func PublicRoutes(userHandler handler.UserHandler,
-	adminHandler handler.AdminHandler) []*route.Route {
+	adminHandler handler.AdminHandler,
+	midtransHandler *handler.MidtransHandler) []*route.Route {
 	return []*route.Route{
 		{
 			Method:  http.MethodPost,
@@ -55,6 +56,11 @@ func PublicRoutes(userHandler handler.UserHandler,
 			Method:  http.MethodPost,
 			Path:    "/password-reset",
 			Handler: userHandler.ResetPassword,
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/midtrans/notification",
+			Handler: midtransHandler.HandleNotification,
 		},
 	}
 }
@@ -137,7 +143,7 @@ func PrivateRoutes(userHandler handler.UserHandler,
 			Handler: orderHandler.UpdateOrderStatus,
 			Roles:   onlyAdmin,
 		},
-				{
+		{
 			Method:  http.MethodGet,
 			Path:    "/orders/history",
 			Handler: orderHandler.GetOrderHistory,
